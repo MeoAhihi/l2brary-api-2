@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -22,6 +23,7 @@ import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { UserProfile } from 'src/user-profiles/entities/user-profile.entity';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -79,6 +81,10 @@ export class AuthenticationController {
   // }
 
   @Post('refresh')
+  @ApiBody({
+    type: RefreshTokenDto,
+    description: 'Refresh token data',
+  })
   @ApiOperation({ summary: 'Refresh access token' })
   @ApiResponse({
     status: 200,
@@ -87,7 +93,7 @@ export class AuthenticationController {
   })
   @ApiResponse({ status: 401, description: 'Invalid refresh token' })
   async refresh(
-    @Body('refreshToken') refreshToken: string,
+    @Body('refresh-token') refreshToken: string,
   ): Promise<TokenResponseDto> {
     return this.authenticationService.refreshTokens(refreshToken);
   }
@@ -99,7 +105,7 @@ export class AuthenticationController {
     description: 'User profile retrieved successfully',
   })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiBearerAuth()
+  @ApiBearerAuth('JWT-auth')
   @UseGuards(JwtAuthGuard)
   async getProfile(@Req() req: any) {
     return req.user;

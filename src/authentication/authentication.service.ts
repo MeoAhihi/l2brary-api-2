@@ -6,7 +6,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { UserProfilesService } from 'src/user-profiles/user-profiles.service';
 import { Repository } from 'typeorm';
-import { InviteCode } from './entities/invite-code';
+import { InviteCode } from '../invite-codes/entities/invite-code.entity';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { UserProfile } from 'src/user-profiles/entities/user-profile.entity';
@@ -19,12 +19,12 @@ import {
   JWT_REFRESH_EXPIRES_IN,
 } from './constants/auth.constants';
 import { InjectRepository } from '@nestjs/typeorm';
+import { InviteCodesService } from 'src/invite-codes/invite-codes.service';
 
 @Injectable()
 export class AuthenticationService {
   constructor(
-    @InjectRepository(InviteCode)
-    private readonly inviteCodeRepository: Repository<InviteCode>,
+    private readonly inviteCodesService: InviteCodesService,
     private readonly userProfileService: UserProfilesService,
     private readonly jwtService: JwtService,
   ) {}
@@ -57,7 +57,7 @@ export class AuthenticationService {
     registerDto: RegisterDto,
   ): Promise<AuthResponseDto> {
     // Validate invite code
-    const invite = await this.validateInviteCode(inviteCode);
+    const invite = await this.inviteCodesService.validateInviteCode(inviteCode);
 
     // Check if user already exists
     const existingUser = await this.userProfileService.findByEmail(
@@ -77,7 +77,7 @@ export class AuthenticationService {
     });
 
     // Mark invite code as used
-    await this.markInviteCodeAsUsed(invite.id, user.id);
+    await this.inviteCodesService.markInviteCodeAsUsed(invite.id, user.id);
 
     // Generate tokens
     const tokens = this.generateTokens(user);
@@ -147,34 +147,8 @@ export class AuthenticationService {
   }
 
   private validatePassword(user: UserProfile, password: string): boolean {
-    // return compareSync(password, user.password);
-    return password === user.password;
-  }
-
-  private async validateInviteCode(code: string): Promise<InviteCode> {
-    const invite = await this.inviteCodeRepository.findOne({
-      where: { code, used: false },
-    });
-
-    if (!invite) {
-      throw new BadRequestException('Invalid or expired invite code');
-    }
-
-    if (invite.expiresAt && invite.expiresAt < new Date()) {
-      throw new BadRequestException('Invite code has expired');
-    }
-
-    return invite;
-  }
-
-  private async markInviteCodeAsUsed(
-    inviteId: string,
-    userId: string,
-  ): Promise<void> {
-    await this.inviteCodeRepository.update(inviteId, {
-      used: true,
-      usedBy: userId,
-    });
+    return compareSync(password, user.password);
+    // return password === user.password;
   }
 
   generateTokens(user: UserProfile): TokenResponseDto {

@@ -1,19 +1,18 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { AuthenticationService } from './authentication.service';
-import { AuthenticationController } from './authentication.controller';
 import { UserProfilesModule } from 'src/user-profiles/user-profiles.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { InviteCode } from './entities/invite-code';
+import { AuthenticationController } from './authentication.controller';
+import { AuthenticationService } from './authentication.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 // import { GoogleStrategy } from './strategies/google.strategy';
-import { JWT_SECRET, JWT_REFRESH_SECRET } from './constants/auth.constants';
+import { InviteCodesModule } from 'src/invite-codes/invite-codes.module';
+import { JWT_SECRET } from './constants/auth.constants';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([InviteCode]),
+    InviteCodesModule,
     UserProfilesModule,
     PassportModule,
     JwtModule.register({
