@@ -37,6 +37,12 @@ export class UserProfilesService {
     return userProfile;
   }
 
+  async findByEmail(email: string): Promise<UserProfile | null> {
+    return await this.userProfileRepository.findOne({
+      where: { email, deletedAt: IsNull() },
+    });
+  }
+
   async update(
     id: string,
     updateUserProfileDto: UpdateUserProfileDto,
