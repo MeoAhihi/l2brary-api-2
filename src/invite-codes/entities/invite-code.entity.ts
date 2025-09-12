@@ -14,6 +14,6 @@ export class InviteCode {
   @Column({ nullable: true })
   usedBy: string; // userId or email
 
-  @Column({ nullable: true })
+  @Column({ type: 'datetime', nullable: true })
   expiresAt: Date | null;
 }
