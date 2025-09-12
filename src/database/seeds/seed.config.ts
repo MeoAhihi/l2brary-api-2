@@ -1,4 +1,4 @@
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 // Parse the MySQL connection string
 const parseConnectionString = (connectionString: string) => {
@@ -17,18 +17,18 @@ const CONNECTION_STRING = 'mysql://udqvr5nuwjv5kldh:ZXevL3j177QmZdwOBLry@bqsa2q0
 
 const dbConfig = parseConnectionString(CONNECTION_STRING);
 
-export const getDatabaseConfig = (): TypeOrmModuleOptions => ({
+// Create a DataSource for seeding
+export const SeedDataSource = new DataSource({
   type: 'mysql',
   host: dbConfig.host,
   port: dbConfig.port,
   username: dbConfig.username,
   password: dbConfig.password,
   database: dbConfig.database,
-  entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-  migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
-  synchronize: false, // Always false when using migrations
-  logging: process.env.NODE_ENV === 'development',
+  entities: [__dirname + '/../../**/*.entity{.ts,.js}'],
+  synchronize: false,
+  logging: true,
   ssl: {
-    rejectUnauthorized: false, // For cloud databases like Clever Cloud
+    rejectUnauthorized: false,
   },
 });
