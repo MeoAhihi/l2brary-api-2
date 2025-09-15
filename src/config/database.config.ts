@@ -13,7 +13,7 @@ const parseConnectionString = (connectionString: string) => {
 };
 
 // Your MySQL connection string
-const CONNECTION_STRING = 'mysql://udqvr5nuwjv5kldh:ZXevL3j177QmZdwOBLry@bqsa2q0r2m5ugjksw7jd-mysql.services.clever-cloud.com:3306/bqsa2q0r2m5ugjksw7jd';
+const CONNECTION_STRING = process.env.MYSQL_DATABASE_URL ?? '';
 
 const dbConfig = parseConnectionString(CONNECTION_STRING);
 
