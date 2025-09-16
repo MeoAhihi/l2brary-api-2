@@ -1,5 +1,5 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 import { parseConnectionString } from 'src/common/util';
 // Parse the MySQL connection string
 ConfigModule.forRoot({
@@ -12,7 +12,8 @@ const CONNECTION_STRING = configService.get<string>('MYSQL_DATABASE_URL') ?? '';
 
 const dbConfig = parseConnectionString(CONNECTION_STRING);
 
-export const getDatabaseConfig = (): TypeOrmModuleOptions => ({
+// Create a DataSource for migrations
+export const AppDataSource = new DataSource({
   type: 'mysql',
   host: dbConfig.host,
   port: dbConfig.port,
@@ -21,9 +22,9 @@ export const getDatabaseConfig = (): TypeOrmModuleOptions => ({
   database: dbConfig.database,
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
-  synchronize: false, // Always false when using migrations
-  logging: process.env.NODE_ENV === 'development',
+  synchronize: false, // Always false for migrations
+  logging: true,
   ssl: {
-    rejectUnauthorized: false, // For cloud databases like Clever Cloud
+    rejectUnauthorized: false,
   },
 });
